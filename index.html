@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <meta charset="utf-8" />
+        <title>Fourrooms</title>    
+    </header>
+    <body>
+        <canvas id="glcanvas" width="640" height="480">
+          このブラウザは
+          <code>&lt;canvas&gt;</code> 要素をサポートしていません。
+        </canvas>
+    </body>
+    <script>
+        let occupancy = [];
+        let tostate = [];
+        let height = 0;
+        let width = 0;
+        window.onload = init();
+        //
+        // start here
+        //
+
+        function start(){
+            
+        }
+
+        function tocell(state){
+            for(let y=0; y < height; y++){
+                for(let x=0; x<width; x++){
+                    if(tostate[y][x] == state){
+                        return [y, x];
+                    }
+                }
+            }
+        }
+
+        function createArangeArray(num){
+            arr = []
+            for(let i=0; i<num; i++){
+                arr[i] = i;
+            }
+            return arr;
+        }
+
+        function init() {
+            const canvas = document.querySelector("#glcanvas");
+            const layout = `wwwwwwwwwwwww
+w     w     w
+w     w     w
+w           w
+w     w     w
+w     w     w
+ww wwww     w
+w     www www
+w     w     w
+w     w     w
+w           w
+w     w     w
+wwwwwwwwwwwww`;
+            let splited_layout = layout.split('\n');
+            console.log(splited_layout);
+            let cells = Array.from(splited_layout);
+            for(cell of cells){
+                splited_cell = cell.split('');
+                res_cell = splited_cell.map((str) => {
+                    if(str == 'w'){
+                        return 1;
+                    }
+                    return 0;
+                });
+                occupancy.push(res_cell);
+            }
+            console.log(occupancy);
+            // javascriptはオブジェクトを参照で渡す。
+            for(row of occupancy){
+                c_row = row.concat();
+                tostate.push(c_row);
+            }
+            num_state = 0;
+            height = occupancy.length;
+            width = occupancy[0].length;
+            for(let y=0; y < height; y++){
+                for(let x=0; x<width; x++){
+                    if(occupancy[y][x] == 0){
+                        tostate[y][x] = num_state;
+                        num_state++;
+                    }else{
+                        tostate[y][x] = -1;
+                    }
+                }
+            }
+            console.log(tostate);
+            let goal = 62;
+            const arange_state = createArangeArray(num_state);
+            const init_state = arange_state.filter(n => n != goal);
+            console.log(init_state);
+            
+            // TODO canvasの大きさからcellの大きさを指定するように変更する。
+            canvas.height = 50 * height;
+            canvas.width = 50 * width;
+            var context = canvas.getContext("2d");
+            let x = 0;
+            let y = 0;
+            const cell_width = 50;
+            const cell_height = 50;
+            for(let i=0; i<height; i++){
+                for(let j=0; j<width; j++){
+                    if(occupancy[i][j] == 1){
+                        console.log('black');
+                        context.fillStyle = 'black';
+                    }else{
+                        context.fillStyle = 'white';
+                    }
+                    context.fillRect(x + j * cell_width, y + i * cell_height, cell_width, cell_height);
+                    console.log('x:' + (x + j * cell_width) + 'y:' + (y + i * cell_height));
+                }
+            }
+            let [g_y, g_x] = tocell(goal);
+            context.fillStyle = 'red';
+            context.fillRect(x + g_x * cell_width, y + g_y * cell_height, cell_height, cell_width);
+            
+
+            // Initialize the GL context
+            // const gl = canvas.getContext("webgl");
+            // // Only continue if WebGL is available and working
+            // if (!gl) {
+            // alert("Unable to initialize WebGL. Your browser or machine may not support it.");
+            // return;
+            // }
+            // // Set clear color to black, fully opaque
+            // gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            // // Clear the color buffer with specified clear color
+            // gl.clear(gl.COLOR_BUFFER_BIT);
+        }
+    </script>
+</html>
